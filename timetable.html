@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>ตารางสอน • Student Planner</title>
+  <link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+<div id="app-header"></div>
+<main class="container">
+  <div class="toolbar">
+    <h2>จัดตารางสอนรายวัน</h2>
+    <a href="home.html"><button class="ghost">← กลับหน้าแรก</button></a>
+  </div>
+
+  <section class="card">
+    <div class="row">
+      <label>เลือกวัน<br>
+        <select id="daySel">
+          <option value="Mon">จันทร์</option><option value="Tue">อังคาร</option><option value="Wed">พุธ</option>
+          <option value="Thu">พฤหัสบดี</option><option value="Fri">ศุกร์</option><option value="Sat">เสาร์</option><option value="Sun">อาทิตย์</option>
+        </select>
+      </label>
+      <div></div>
+    </div><br>
+
+    <form id="addClass" class="row">
+      <label>เวลา (เช่น 08:30)<br><input type="time" required></label>
+      <label>วิชา/คาบ<br><input required placeholder="เช่น คณิตศาสตร์"></label>
+      <label>ห้อง/หมายเหตุ<br><input placeholder="เช่น ห้อง 3/2"></label>
+      <div><br><button>+ เพิ่มคาบ</button></div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h3>คาบเรียนของวัน <span id="dayLabel"></span></h3>
+    <table class="table">
+      <thead><tr><th>เวลา</th><th>วิชา</th><th>ห้อง/หมายเหตุ</th><th></th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </section>
+</main>
+
+<script src="assets/app.js"></script>
+<script>
+  mustAuth(); mountHeader('timetable');
+
+  const daySel = document.getElementById('daySel');
+  const dayLabel = document.getElementById('dayLabel');
+  const p = getProfile();
+
+  function render(){
+    const day = daySel.value;
+    dayLabel.textContent = dayName(day);
+    const list = (p.classSchedule?.[day]||[]).sort((a,b)=> a.time.localeCompare(b.time));
+    document.getElementById('rows').innerHTML = list.map((c,i)=>`
+      <tr><td>${fmtTime(c.time)}</td><td>${c.subject}</td><td>${c.room||'-'}</td>
+      <td><button class="link" onclick="del(${i})">ลบ</button></td></tr>
+    `).join('');
+    saveProfile(p);
+  }
+  function dayName(k){ return {Mon:'จันทร์',Tue:'อังคาร',Wed:'พุธ',Thu:'พฤหัสบดี',Fri:'ศุกร์',Sat:'เสาร์',Sun:'อาทิตย์'}[k]; }
+
+  daySel.onchange = render;
+  document.getElementById('addClass').onsubmit = (e)=>{
+    e.preventDefault();
+    const [timeEl,subjectEl,roomEl] = e.target.querySelectorAll('input');
+    const day = daySel.value;
+    p.classSchedule[day].push({time:timeEl.value, subject:subjectEl.value.trim(), room:roomEl.value.trim()});
+    // แจ้งเตือนว่าได้อัปเดตตารางสอน
+    addNotification({
+      title:'อัปเดตตารางสอนแล้ว',
+      body:`${dayName(day)} • ${fmtTime(timeEl.value)} • ${subjectEl.value}`,
+      timeISO:new Date().toISOString()
+    });
+    e.target.reset();
+    render();
+  };
+  window.del = (idx)=>{
+    const day = daySel.value;
+    p.classSchedule[day].splice(idx,1);
+    render();
+  };
+
+  // ตั้งค่าเริ่มต้นวันปัจจุบัน
+  const todayKey = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date().getDay()];
+  daySel.value = todayKey;
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>ปฏิทิน • Student Planner</title>
+  <link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+<div id="app-header"></div>
+<main class="container">
+  <div class="toolbar">
+    <h2>ปฏิทิน & กำหนดการ</h2>
+    <a href="home.html"><button class="ghost">← กลับหน้าแรก</button></a>
+  </div>
+
+  <section class="card">
+    <h3>เพิ่มกำหนดการใหม่</h3>
+    <form id="newSch">
+      <div class="row">
+        <label>ชื่อกิจกรรม<br><input required placeholder="เช่น ทำการบ้านคณิต"></label>
+        <label>ประเภท<br>
+          <select>
+            <option value="study">อ่านหนังสือ</option>
+            <option value="exam">สอบ</option>
+            <option value="meeting">ประชุม/กิจกรรม</option>
+            <option value="other" selected>อื่นๆ</option>
+          </select>
+        </label>
+      </div><br>
+      <div class="row">
+        <label>วิชา (ถ้ามี)<br>
+          <select>
+            <option value="">—</option>
+            <option>ภาษาไทย</option><option>คณิตศาสตร์</option><option>วิทยาศาสตร์</option>
+            <option>อังกฤษ</option><option>สังคมศึกษา</option><option>คอมพิวเตอร์</option><option>ศิลปะ</option>
+          </select>
+        </label>
+        <label>วันและเวลา<br><input type="datetime-local" required></label>
+      </div><br>
+      <label>หมายเหตุ<br><input placeholder="เช่น อ่านบทที่ 3–4 / ทำแบบฝึกหัด 1–10"></label><br><br>
+      <button>+ เพิ่ม</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h3>รายการทั้งหมด</h3>
+    <table class="table" id="tbl">
+      <thead><tr><th>เวลา</th><th>ชื่อ</th><th>ประเภท</th><th>วิชา</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p id="empty" class="empty">ยังไม่มีรายการ</p>
+  </section>
+</main>
+
+<script src="assets/app.js"></script>
+<script>
+  mustAuth(); mountHeader('calendar');
+
+  const p = getProfile();
+  const form = document.getElementById('newSch');
+  const [titleEl,typeEl,subjectEl,whenEl,notesEl] = [
+    form.querySelectorAll('input')[0],
+    form.querySelector('select'),
+    form.querySelectorAll('select')[1],
+    form.querySelector('input[type="datetime-local"]'),
+    form.querySelectorAll('input')[1]
+  ];
+
+  form.onsubmit = (e)=>{
+    e.preventDefault();
+    const whenISO = new Date(whenEl.value).toISOString();
+    addSchedule({
+      title: titleEl.value.trim(),
+      type: typeEl.value,
+      subject: subjectEl.value || null,
+      whenISO,
+      notes: notesEl.value.trim()
+    });
+    form.reset();
+    render();
+  };
+
+  function render(){
+    const rows = (getProfile().schedules||[])
+      .sort((a,b)=> new Date(a.whenISO)-new Date(b.whenISO))
+      .map(s=> `<tr>
+        <td>${new Date(s.whenISO).toLocaleString()}</td>
+        <td>${s.title}</td>
+        <td>${s.type}</td>
+        <td>${s.subject||'-'}</td>
+        <td><button class="link" onclick="del('${s.id}')">ลบ</button></td>
+      </tr>`).join('');
+    document.querySelector('#tbl tbody').innerHTML = rows;
+    document.getElementById('empty').style.display = rows? 'none':'block';
+  }
+  window.del = (id)=>{ deleteSchedule(id); render(); };
+  render();
+</script>
+</body>
+</html>

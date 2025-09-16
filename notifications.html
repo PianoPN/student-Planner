@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>การแจ้งเตือน • Student Planner</title>
+  <link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+<div id="app-header"></div>
+<main class="container">
+  <div class="toolbar">
+    <h2>การแจ้งเตือน</h2>
+    <button class="ghost" onclick="readAll()">ทำเครื่องหมายว่าอ่านทั้งหมด</button>
+  </div>
+
+  <section class="card" id="list"></section>
+</main>
+
+<script src="assets/app.js"></script>
+<script>
+  mustAuth(); mountHeader('notifications');
+
+  function render(){
+    const p = getProfile();
+    const html = p.notifications.length? `<ul class="clean">` + p.notifications.map(n=>`
+      <li class="card" style="border-color:${n.read?'var(--line)':'#93c5fd'}">
+        <b>${n.title}</b> ${!n.read?'<span class="badge">ใหม่</span>':''}<br>
+        <small class="muted">${new Date(n.timeISO).toLocaleString()}</small>
+        <p>${n.body}</p>
+        ${!n.read?`<button class="ghost" onclick="mark('${n.id}')">ทำเป็นอ่านแล้ว</button>`:''}
+      </li>
+    `).join('') + `</ul>` : `<p class="empty">ยังไม่มีแจ้งเตือน</p>`;
+    document.getElementById('list').innerHTML = html;
+    mountHeader('notifications'); // รีเฟรชจุดแดง
+  }
+  window.readAll = ()=>{ markAllRead(); render(); };
+  window.mark = (id)=>{
+    const p = getProfile();
+    const t = p.notifications.find(n=>n.id===id); if(t){ t.read = true; saveProfile(p); }
+    render();
+  };
+  render();
+</script>
+</body>
+</html>

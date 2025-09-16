@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>แนะนำการอ่าน • Student Planner</title>
+  <link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+<div id="app-header"></div>
+<main class="container">
+  <div class="toolbar">
+    <h2>แนะนำการอ่านหนังสือ</h2>
+    <a href="home.html"><button class="ghost">← กลับหน้าแรก</button></a>
+  </div>
+
+  <section class="card" id="sugBox"></section>
+
+  <section class="card">
+    <h3>สร้างแผนเอง (กำหนดวิชาและเวลา)</h3>
+    <form id="manual">
+      <div class="row">
+        <label>วิชา<br>
+          <select required>
+            <option>ภาษาไทย</option><option>คณิตศาสตร์</option><option>วิทยาศาสตร์</option>
+            <option>อังกฤษ</option><option>สังคมศึกษา</option><option>คอมพิวเตอร์</option><option>ศิลปะ</option>
+          </select>
+        </label>
+        <label>วันและเวลา<br><input type="datetime-local" required></label>
+      </div><br>
+      <label>เคล็ดลับ/สิ่งที่จะทำ<br><input placeholder="เช่น ทำโจทย์ 20 ข้อ, ทบทวนโน้ตบท 2"></label><br><br>
+      <button>บันทึกลงปฏิทิน</button>
+    </form>
+  </section>
+</main>
+
+<script src="assets/app.js"></script>
+<script>
+  mustAuth(); mountHeader('study');
+
+  function renderSug(){
+    const s = nextStudySuggestion();
+    document.getElementById('sugBox').innerHTML = `
+      <h3>ข้อเสนออัจฉริยะ (อิงจากความชอบ + เวลาว่าง)</h3>
+      <p><b>วิชา:</b> ${s.subject} • <b>เวลา:</b> ${new Date(s.whenISO).toLocaleString()} • <b>ช่วง:</b> ${s.durationMin} นาที</p>
+      <p class="muted">${s.tip}</p>
+      <button id="accept">บันทึกตามคำแนะนำ</button>
+    `;
+    document.getElementById('accept').onclick = ()=>{ acceptSuggestion(s); alert('บันทึกแล้ว!'); renderSug(); };
+  }
+  renderSug();
+
+  // manual form
+  const f = document.getElementById('manual');
+  f.onsubmit = (e)=>{
+    e.preventDefault();
+    const subject = f.querySelector('select').value;
+    const whenISO = new Date(f.querySelector('input[type="datetime-local"]').value).toISOString();
+    const notes = f.querySelectorAll('input')[1].value.trim();
+    addSchedule({title:`อ่านหนังสือ: ${subject}`, type:'study', subject, whenISO, notes});
+    const p = getProfile(); p.lastStudySubject = subject; saveProfile(p);
+    alert('บันทึกเรียบร้อย'); f.reset();
+  };
+</script>
+</body>
+</html>

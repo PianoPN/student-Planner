@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>หน้าแรก • Student Planner</title>
+  <link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+<div id="app-header"></div>
+<main class="container">
+  <div class="toolbar">
+    <!-- เปลี่ยนหัวข้อให้มี id="welcomeTitle" เพื่อใส่ชื่อเล่นอัตโนมัติ -->
+    <h2 id="welcomeTitle">ยินดีต้อนรับ 👋</h2>
+    <a href="notifications.html"><button class="ghost">🔔 การแจ้งเตือน <span id="bell" class="badge" style="display:none"></span></button></a>
+  </div>
+
+  <section class="card">
+    <h3>สรุปวันนี้</h3>
+    <div id="todaySummary"></div>
+  </section>
+
+  <div class="row">
+    <section class="card">
+      <h3>กิจกรรมถัดไป</h3>
+      <ul id="upcoming" class="clean"></ul>
+      <p id="noUpcoming" class="empty">ยังไม่มีรายการถัดไป</p>
+      <a href="calendar.html"><button class="right">+ เพิ่มในปฏิทิน</button></a>
+    </section>
+
+    <section class="card">
+      <h3>คำแนะนำการอ่านวันนี้</h3>
+      <div id="suggestBox"></div>
+      <a href="study.html"><button class="ghost">ดูเพิ่มเติมในหน้า “แนะนำการอ่าน”</button></a>
+    </section>
+  </div>
+
+  <section class="card">
+    <h3>เมนูลัด</h3>
+    <div class="row">
+      <a href="calendar.html"><button class="ghost">📅 ปฏิทิน</button></a>
+      <a href="study.html"><button class="ghost">📖 แนะนำการอ่าน</button></a>
+      <a href="timetable.html"><button class="ghost">🗓️ ตารางสอน</button></a>
+      <a href="notifications.html"><button class="ghost">🔔 การแจ้งเตือน</button></a>
+    </div>
+  </section>
+</main>
+
+<script src="assets/app.js"></script>
+<script>
+  mustAuth();
+  ensureDailyPrompts();
+  mountHeader('home'); // จะอัปเดตข้อความใน #welcomeTitle เป็น "ยินดีต้อนรับ {ชื่อเล่น} 👋"
+
+  // badge จุดแดง
+  const cnt = unreadCount(); const bell = document.getElementById('bell');
+  if(bell){ bell.style.display = cnt>0?'inline-block':'none'; bell.textContent = cnt; }
+
+  // กิจกรรมถัดไป
+  const list = upcomingSchedules(5); 
+  const ul = document.getElementById('upcoming');
+  document.getElementById('noUpcoming').style.display = list.length? 'none':'block';
+  ul.innerHTML = list.map(s=>`<li class="card"><b>${s.title}</b><br><small class="muted">${new Date(s.whenISO).toLocaleString()}</small><br><small>${s.notes||''}</small></li>`).join('');
+
+  // คำแนะนำการอ่าน
+  const sug = nextStudySuggestion();
+  document.getElementById('suggestBox').innerHTML = `
+    <p><b>วิชาแนะนำ:</b> ${sug.subject}<br><b>เวลา:</b> ${new Date(sug.whenISO).toLocaleString()} (${sug.durationMin} นาที)</p>
+    <p class="muted">${sug.tip}</p>
+    <button id="acceptSug">บันทึกลงปฏิทิน</button>
+  `;
+  document.getElementById('acceptSug').onclick = ()=>{
+    acceptSuggestion(sug);
+    alert('บันทึกแล้ว ไปดูในปฏิทินได้เลย!');
+    location.reload();
+  };
+
+  // สรุปวันนี้ (จำนวนคาบเรียน + งานอ่าน)
+  const p = getProfile();
+  const dayKey = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date().getDay()];
+  const classes = p.classSchedule[dayKey]||[];
+  document.getElementById('todaySummary').innerHTML = `
+    <div>🗓️ คาบเรียนวันนี้: <b>${classes.length}</b> คาบ</div>
+    <div>🔔 การแจ้งเตือนที่ยังไม่อ่าน: <b>${cnt}</b> รายการ</div>
+  `;
+</script>
+</body>
+</html>

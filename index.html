@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>เข้าสู่ระบบ • Student Planner</title>
+  <link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+<div id="app-header"></div>
+<main class="container">
+  <div class="card">
+    <h1>ยินดีต้อนรับ 👋</h1>
+    <p class="muted">เข้าสู่ระบบหรือสมัครสมาชิกเพื่อเริ่มจัดตารางเวลา</p>
+    <div class="row">
+      <section>
+        <h3>เข้าสู่ระบบ</h3>
+        <form id="loginForm">
+          <label>อีเมล<br><input type="email" required></label><br><br>
+          <label>รหัสผ่าน<br><input type="password" required></label><br><br>
+          <button type="submit">เข้าสู่ระบบ</button>
+        </form>
+        <p id="loginMsg" class="muted"></p>
+      </section>
+      <section>
+        <h3>สมัครสมาชิก</h3>
+        <form id="signupForm">
+          <label>ชื่อเล่น (ไม่บังคับ)<br><input type="text" placeholder="เช่น นัท"></label><br><br>
+          <label>อีเมล<br><input type="email" required></label><br><br>
+          <label>รหัสผ่าน<br><input type="password" minlength="4" required></label><br><br>
+          <button type="submit">สมัครสมาชิก</button>
+        </form>
+        <p class="muted">หลังสมัคร ระบบจะพาไปเลือก “กิจกรรมที่ชอบ” เพื่อปรับคำแนะนำให้ตรงใจ</p>
+        <p id="signupMsg" class="muted"></p>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script src="assets/app.js"></script>
+<script>
+  mountHeader();
+  // ถ้ามี session แล้วไปหน้าแรก
+  if(getSessionEmail()){ window.location.href = 'home.html'; }
+
+  document.getElementById('loginForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const [email,password] = e.target.querySelectorAll('input');
+    try{ signIn({email:email.value.trim(), password:password.value}); }
+    catch(err){ document.getElementById('loginMsg').textContent = err.message; }
+  });
+
+  document.getElementById('signupForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const [name,email,password] = e.target.querySelectorAll('input');
+    try{ signUp({name:name.value.trim(), email:email.value.trim(), password:password.value}); }
+    catch(err){ document.getElementById('signupMsg').textContent = err.message; }
+  });
+</script>
+</body>
+</html>

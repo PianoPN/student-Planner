@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>เลือกกิจกรรมที่ชอบ • Student Planner</title>
+  <link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+<div id="app-header"></div>
+<main class="container">
+  <div class="card">
+    <h2>เลือกกิจกรรมที่คุณชอบ ✨</h2>
+    <p class="muted">อย่างน้อย 3 อย่าง เพื่อใช้ปรับคำแนะนำ (เพิ่มได้ภายหลัง)</p>
+    <form id="interestForm"></form>
+    <br>
+    <button id="saveBtn">บันทึกและไปหน้าแรก</button>
+  </div>
+</main>
+
+<script src="assets/app.js"></script>
+<script>
+  mustAuth(); mountHeader();
+  const p = getProfile(); const form = document.getElementById('interestForm');
+  const all = DEFAULT_INTERESTS;
+  form.innerHTML = '<div class="row">'+all.map((name,i)=>`
+    <label class="card"><input type="checkbox" value="${name}" ${p.interests.includes(name)?'checked':''}> ${name}</label>
+  `).join('')+'</div>';
+
+  document.getElementById('saveBtn').onclick = ()=>{
+    const chosen = Array.from(form.querySelectorAll('input:checked')).map(i=>i.value);
+    if(chosen.length<3){ alert('กรุณาเลือกอย่างน้อย 3 กิจกรรม'); return; }
+    p.interests = chosen; saveProfile(p);
+    window.location.href = 'home.html';
+  };
+</script>
+</body>
+</html>
