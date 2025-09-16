@@ -1,0 +1,33 @@
+:root{
+  --bg:#f6f7fb; --card:#ffffff; --text:#0f172a; --muted:#64748b; --brand:#2563eb; --line:#e5e7eb;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"TH Sarabun New","Prompt",sans-serif;line-height:1.6}
+.container{max-width:960px;margin:0 auto;padding:20px}
+header.navbar{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);z-index:10}
+.navwrap{display:flex;align-items:center;gap:16px;padding:12px 20px}
+.navwrap .brand{font-weight:700}
+.navwrap nav a{color:#334155;text-decoration:none;margin-right:10px;padding:6px 8px;border-radius:8px}
+.navwrap nav a.active,.navwrap nav a:hover{background:#eef2ff;color:#1d4ed8}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 2px 6px rgba(15,23,42,.04);margin-bottom:16px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:720px){.row{grid-template-columns:1fr}}
+
+input,select,textarea,button{font:inherit}
+input,select,textarea{
+  width:100%;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fff;color:inherit
+}
+button{
+  border:0;border-radius:12px;padding:10px 14px;background:var(--brand);color:#fff;cursor:pointer
+}
+button.ghost{background:#eef2ff;color:#1d4ed8}
+button.link{background:transparent;color:#1d4ed8;padding:0}
+ul.clean{list-style:none;margin:0;padding:0}
+.badge{display:inline-block;min-width:18px;height:18px;border-radius:999px;background:#ef4444;color:#fff;font-size:.75rem;line-height:18px;text-align:center;padding:0 6px}
+.kbd{border:1px solid var(--line);border-bottom-width:2px;border-radius:8px;padding:2px 6px;background:#fff;font-size:.85rem}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.empty{color:var(--muted)}
+small, .muted{color:var(--muted)}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{border-bottom:1px solid var(--line);padding:10px;text-align:left}
+.right{float:right}
